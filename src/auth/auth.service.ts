@@ -2,10 +2,12 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { SignupDto } from './dto/signupDto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { MailerService } from '../mailer/mailer.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prismaService: PrismaService) {
+  constructor(private readonly prismaService: PrismaService,
+              private readonly mailerService: MailerService) {
   }
   async signup(signupDto: SignupDto) {
     const { email, password, username } = signupDto;
@@ -24,6 +26,7 @@ export class AuthService {
       }
     })
     // Envoyer un email de confirmation
+    await this.mailerService.sendSignupConfirmation(email);
     // Retourner une réponse de succés
     return { data: 'User succesfully created' };
   }
